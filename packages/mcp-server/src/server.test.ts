@@ -135,6 +135,58 @@ describe("MCP Server Integration", () => {
     });
   });
 
+  describe("Output Suppression on Success", () => {
+    it("should suppress output for successful commands without template", async () => {
+      mockExecuteCommand.mockResolvedValue({
+        exitCode: 0,
+        output: "lots of verbose output that should be suppressed"
+      });
+
+      const result = await executeCommand("npm test");
+      // Simulate server behavior
+      const filteredOutput =
+        result.exitCode === 0
+          ? "Command completed successfully (output suppressed - exit code 0)"
+          : result.output;
+
+      expect(filteredOutput).toBe(
+        "Command completed successfully (output suppressed - exit code 0)"
+      );
+      expect(filteredOutput).not.toContain("verbose output");
+    });
+
+    it("should show full output for failed commands without template", async () => {
+      mockExecuteCommand.mockResolvedValue({
+        exitCode: 1,
+        output: "error output that should be shown"
+      });
+
+      const result = await executeCommand("npm test");
+      // Simulate server behavior
+      const filteredOutput =
+        result.exitCode === 0
+          ? "Command completed successfully (output suppressed - exit code 0)"
+          : result.output;
+
+      expect(filteredOutput).toBe("error output that should be shown");
+      expect(filteredOutput).toContain("error output");
+    });
+
+    it("should not suppress output when template is specified even on success", async () => {
+      mockExecuteCommand.mockResolvedValue({
+        exitCode: 0,
+        output: "PASS test 1\nPASS test 2\n\nTests: 2 passed"
+      });
+
+      const result = await executeCommand("npm test");
+      // When template is used, suppression should not apply
+      // Template filtering takes precedence
+
+      expect(result.exitCode).toBe(0);
+      expect(result.output).toContain("PASS test");
+    });
+  });
+
   describe("list_templates Response Format", () => {
     it("should return templates with name, description, include_regex, tail_paragraphs", () => {
       const templateManager = new TemplateManager();

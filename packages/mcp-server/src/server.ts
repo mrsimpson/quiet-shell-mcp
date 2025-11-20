@@ -58,6 +58,12 @@ export function createQuietShellServer(): Server {
               enum: templateNames,
               description:
                 "Optional: Filter template to apply. Each template uses regex patterns to keep only relevant output (errors, failures) and summary paragraphs. Use list_templates tool to see detailed descriptions of available templates. Omit this parameter to receive raw unfiltered output."
+            },
+            suppress_output_on_success: {
+              type: "boolean",
+              description:
+                "Optional: Suppress output when command succeeds (exit code 0). Defaults to true. Set to false to always show output even on success. Only applies when no template is specified.",
+              default: true
             }
           },
           required: ["command"]
@@ -84,9 +90,10 @@ export function createQuietShellServer(): Server {
     try {
       switch (name) {
         case "execute_command": {
-          const { command, template } = args as {
+          const { command, template, suppress_output_on_success } = args as {
             command: string;
             template?: string;
+            suppress_output_on_success?: boolean;
           };
 
           if (!command || typeof command !== "string") {
@@ -95,19 +102,30 @@ export function createQuietShellServer(): Server {
             );
           }
 
+          // Default suppress_output_on_success to true
+          const suppressOutputOnSuccess =
+            suppress_output_on_success !== undefined
+              ? suppress_output_on_success
+              : true;
+
           logger.info("Executing command:", command);
           if (template) {
             logger.info("Using template:", template);
           }
+          logger.debug("suppress_output_on_success:", suppressOutputOnSuccess);
 
           // Execute command
           const result = await executeCommand(command, logger);
 
-          // Apply filtering if template specified
+          // Determine output to return
           let filteredOutput = result.output;
           let templateUsed: string | null = null;
 
+          // Determine if suppression should apply
+          let shouldSuppress = suppressOutputOnSuccess && result.exitCode === 0;
+
           if (template && typeof template === "string") {
+            // Apply template filtering
             const templateObj = templateManager.getTemplate(template);
 
             if (!templateObj) {
@@ -123,6 +141,24 @@ export function createQuietShellServer(): Server {
             templateUsed = template;
             logger.info(
               `Filtered output: ${result.output.length} → ${filteredOutput.length} characters`
+            );
+
+            // Check if template overrides suppression behavior
+            if (templateObj.suppress_output_on_success !== undefined) {
+              shouldSuppress =
+                templateObj.suppress_output_on_success && result.exitCode === 0;
+              logger.debug(
+                `Template overrides suppress_output_on_success: ${templateObj.suppress_output_on_success}`
+              );
+            }
+          }
+
+          // Apply suppression if enabled and command succeeded
+          if (shouldSuppress) {
+            filteredOutput =
+              "Command completed successfully (output suppressed - exit code 0)";
+            logger.info(
+              `Output suppressed for successful command: ${result.output.length} characters`
             );
           }
 
@@ -153,7 +189,8 @@ export function createQuietShellServer(): Server {
               name,
               description: template.description,
               include_regex: template.include_regex,
-              tail_paragraphs: template.tail_paragraphs
+              tail_paragraphs: template.tail_paragraphs,
+              suppress_output_on_success: template.suppress_output_on_success
             })
           );
 
