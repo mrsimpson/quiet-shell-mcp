@@ -170,9 +170,9 @@ describe("MCP Server Integration", () => {
   describe("Parameter Validation", () => {
     it("should validate command parameter exists", () => {
       const args = {};
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const isValid =
-        "command" in args && typeof (args as any).command === "string";
+        "command" in args &&
+        typeof (args as Record<string, unknown>).command === "string";
       expect(isValid).toBe(false);
     });
 
