@@ -15,21 +15,24 @@ export const BUILTIN_TEMPLATES: Record<string, Template> = {
   vitest: {
     description:
       "Use when running tests with Vitest - returns failed tests and test summary",
-    include_regex: "(FAIL|ERROR|✖|❯.*failed)",
-    tail_paragraphs: 2
+    include_regex:
+      "(FAIL|ERROR|✖|❯.*failed|Test Files\\s+\\d+|Tests\\s+\\d+|Tasks:|Cached:|Time:)",
+    tail_paragraphs: 0
   },
 
   "maven-build": {
     description:
       "Use when building with Maven (mvn compile/install/package) - returns build errors and summary",
-    include_regex: "(ERROR|FAILURE|BUILD FAILURE)",
-    tail_paragraphs: 1
+    include_regex:
+      "(\\[ERROR\\]|\\[INFO\\] BUILD (SUCCESS|FAILURE)|\\[INFO\\] Total time:|\\[INFO\\] Finished at:)",
+    tail_paragraphs: 0
   },
 
   "maven-test": {
     description:
       "Use when running Maven tests (mvn test) - returns test failures and test summary",
-    include_regex: "(FAILURE|ERROR|Tests run:.*Failures:)",
-    tail_paragraphs: 2
+    include_regex:
+      "(\\[ERROR\\]|\\[INFO\\] Results:|\\[INFO\\] Tests run:(?!.*-- in)|\\[INFO\\] BUILD (SUCCESS|FAILURE)|\\[INFO\\] Total time:|\\[INFO\\] Finished at:)",
+    tail_paragraphs: 0
   }
 };
