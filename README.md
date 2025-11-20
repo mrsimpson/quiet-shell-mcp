@@ -68,6 +68,7 @@ Execute shell command with optional output filtering.
 
 - `command` (required): Shell command to execute
 - `template` (optional): Filter template name (use `list_templates` to see available)
+- `suppress_output_on_success` (optional, default: `true`): Suppress output when command succeeds (exit code 0). Set to `false` to always show output even on success
 
 **Response:**
 
@@ -86,14 +87,20 @@ Execute shell command with optional output filtering.
 // Run tests with filtering
 execute_command("npm test", "vitest");
 // Returns: only failed tests + summary (~20 lines instead of 2000+)
+// If tests pass: output suppressed (default behavior)
 
 // TypeScript compilation
 execute_command("tsc --noEmit", "tsc");
 // Returns: only type errors + summary
+// If compilation succeeds: output suppressed (default behavior)
 
-// Raw output (no filtering)
+// Always show output even on success
+execute_command("npm test", null, false); // suppress_output_on_success = false
+// Returns: complete output regardless of exit code
+
+// Raw output with default suppression
 execute_command("echo hello");
-// Returns: complete output
+// If successful: "Command completed successfully (output suppressed - exit code 0)"
 ```
 
 #### `list_templates`
@@ -139,6 +146,13 @@ templates:
     description: "Use when running ESLint - returns linting errors and summary"
     include_regex: "(error|warning|✖)"
     tail_paragraphs: 1
+
+  # Template that always shows success output
+  build-with-stats:
+    description: "Build command that shows statistics even on success"
+    include_regex: "(error|warning|built|compiled)"
+    tail_paragraphs: 2
+    suppress_output_on_success: false # Override default suppression
 ```
 
 **Features:**

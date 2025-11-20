@@ -23,6 +23,8 @@ export interface Template {
   include_regex: string;
   /** Number of paragraphs to include from end of output */
   tail_paragraphs: number;
+  /** Optional: Override suppress_output_on_success behavior for this template */
+  suppress_output_on_success?: boolean;
 }
 
 /**
