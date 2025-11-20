@@ -15,6 +15,41 @@ import {
   executeCommand,
   filterOutput
 } from "@codemcp/quiet-shell-core";
+import { stat, mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+
+/**
+ * Generate filesystem-safe timestamped filename
+ */
+function generateTimestampedFilename(): string {
+  const timestamp = new Date()
+    .toISOString()
+    .replace(/:/g, "-")
+    .replace(/\..+/, "");
+  return `command-output-${timestamp}.txt`;
+}
+
+/**
+ * Resolve output file path - handle directory vs file path
+ */
+async function resolveOutputPath(outputPath: string): Promise<string> {
+  try {
+    const stats = await stat(outputPath);
+    if (stats.isDirectory()) {
+      return join(outputPath, generateTimestampedFilename());
+    }
+    // It's a file, use as-is
+    return outputPath;
+  } catch (err: unknown) {
+    const error = err as { code?: string };
+    if (error.code === "ENOENT") {
+      // Path doesn't exist - treat as directory, create it
+      await mkdir(outputPath, { recursive: true });
+      return join(outputPath, generateTimestampedFilename());
+    }
+    throw err;
+  }
+}
 
 /**
  * Create quiet-shell MCP server
@@ -62,8 +97,12 @@ export function createQuietShellServer(): Server {
             suppress_output_on_success: {
               type: "boolean",
               description:
-                "Optional: Suppress output when command succeeds (exit code 0). Defaults to true. Set to false to always show output even on success.",
+                "Optional: Suppress output when command succeeds (exit code 0). Set to false to always show output even on success.",
               default: true
+            },
+            output_file: {
+              type: "string",
+              description: `Optional: Path to save the complete unfiltered command output. Can be a directory path (e.g., '/tmp' or 'C:\\TEMP') where a timestamped file will be created, or a specific file path. Parent directories will be created if needed. Useful for reviewing full output later when debugging failures.`
             }
           },
           required: ["command"]
@@ -90,11 +129,13 @@ export function createQuietShellServer(): Server {
     try {
       switch (name) {
         case "execute_command": {
-          const { command, template, suppress_output_on_success } = args as {
-            command: string;
-            template?: string;
-            suppress_output_on_success?: boolean;
-          };
+          const { command, template, suppress_output_on_success, output_file } =
+            args as {
+              command: string;
+              template?: string;
+              suppress_output_on_success?: boolean;
+              output_file?: string;
+            };
 
           if (!command || typeof command !== "string") {
             throw new Error(
@@ -162,6 +203,23 @@ export function createQuietShellServer(): Server {
             );
           }
 
+          // Handle output file writing
+          let savedOutputFile: string | null = null;
+          let outputFileError: string | null = null;
+
+          if (output_file) {
+            try {
+              const resolvedPath = await resolveOutputPath(output_file);
+              await writeFile(resolvedPath, result.output, "utf-8");
+              savedOutputFile = resolvedPath;
+              logger.info(`Output written to file: ${resolvedPath}`);
+            } catch (err: unknown) {
+              const error = err as Error;
+              outputFileError = error.message;
+              logger.warn(`Failed to write output file: ${error.message}`);
+            }
+          }
+
           // Return structured response
           return {
             content: [
@@ -172,7 +230,9 @@ export function createQuietShellServer(): Server {
                     result: result.exitCode === 0 ? "success" : "failure",
                     exit_code: result.exitCode,
                     output: filteredOutput,
-                    template_used: templateUsed
+                    template_used: templateUsed,
+                    output_file: savedOutputFile,
+                    output_file_error: outputFileError
                   },
                   null,
                   2

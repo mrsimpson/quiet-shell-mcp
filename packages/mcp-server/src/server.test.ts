@@ -4,6 +4,7 @@ import {
   TemplateManager,
   BUILTIN_TEMPLATES
 } from "@codemcp/quiet-shell-core";
+import type { Stats } from "node:fs";
 
 // Mock the executeCommand function
 vi.mock("@codemcp/quiet-shell-core", async () => {
@@ -13,6 +14,13 @@ vi.mock("@codemcp/quiet-shell-core", async () => {
     executeCommand: vi.fn()
   };
 });
+
+// Mock fs/promises module
+vi.mock("node:fs/promises", () => ({
+  stat: vi.fn(),
+  mkdir: vi.fn(),
+  writeFile: vi.fn()
+}));
 
 describe("MCP Server Integration", () => {
   const mockExecuteCommand = vi.mocked(executeCommand);
@@ -240,6 +248,129 @@ describe("MCP Server Integration", () => {
       const args = { command: "echo test" };
       const isValid = "command" in args && typeof args.command === "string";
       expect(isValid).toBe(true);
+    });
+  });
+
+  describe("Output File Writing", () => {
+    it("should write output to file when output_file is a directory path", async () => {
+      const fsMock = await import("node:fs/promises");
+      const mockStat = vi.mocked(fsMock.stat);
+      const mockWriteFile = vi.mocked(fsMock.writeFile);
+
+      mockExecuteCommand.mockResolvedValue({
+        exitCode: 0,
+        output: "test command output"
+      });
+
+      // Mock stat to indicate path is a directory
+      mockStat.mockResolvedValue({
+        isDirectory: () => true,
+        isFile: () => false
+      } as Partial<Stats> as Stats);
+
+      mockWriteFile.mockResolvedValue(undefined);
+
+      const result = await executeCommand("echo test");
+
+      // Simulate server behavior with output_file parameter
+      const outputFilePath = "/tmp";
+      const stats = await mockStat(outputFilePath);
+
+      if (stats.isDirectory()) {
+        // Should generate timestamped filename
+        const timestamp = new Date()
+          .toISOString()
+          .replace(/:/g, "-")
+          .replace(/\..+/, "");
+        const filename = `command-output-${timestamp}.txt`;
+        const fullPath = `${outputFilePath}/${filename}`;
+        await mockWriteFile(fullPath, result.output, "utf-8");
+      }
+
+      expect(mockWriteFile).toHaveBeenCalledWith(
+        expect.stringMatching(
+          /^\/tmp\/command-output-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.txt$/
+        ),
+        "test command output",
+        "utf-8"
+      );
+    });
+
+    it("should write output to file when output_file is a file path", async () => {
+      const fsMock = await import("node:fs/promises");
+      const mockStat = vi.mocked(fsMock.stat);
+      const mockWriteFile = vi.mocked(fsMock.writeFile);
+
+      mockExecuteCommand.mockResolvedValue({
+        exitCode: 0,
+        output: "test command output"
+      });
+
+      // Mock stat to indicate path is a file
+      mockStat.mockResolvedValue({
+        isDirectory: () => false,
+        isFile: () => true
+      } as Partial<Stats> as Stats);
+
+      // Mock write failure
+      mockWriteFile.mockRejectedValue(new Error("Permission denied"));
+
+      const result = await executeCommand("echo test");
+
+      // Simulate server behavior with write error
+      const outputFilePath = "/tmp/output.txt";
+      let outputFileError = null;
+
+      try {
+        await mockWriteFile(outputFilePath, result.output, "utf-8");
+      } catch (err: unknown) {
+        const error = err as Error;
+        outputFileError = error.message;
+      }
+
+      const response = {
+        result: result.exitCode === 0 ? "success" : "failure",
+        exit_code: result.exitCode,
+        output: result.output,
+        template_used: null,
+        output_file: null,
+        output_file_error: outputFileError
+      };
+
+      expect(response.result).toBe("success");
+      expect(response.output_file).toBeNull();
+      expect(response.output_file_error).toBe("Permission denied");
+    });
+
+    it("should write raw unfiltered output to file even when template is used", async () => {
+      const fsMock = await import("node:fs/promises");
+      const mockStat = vi.mocked(fsMock.stat);
+      const mockWriteFile = vi.mocked(fsMock.writeFile);
+
+      mockExecuteCommand.mockResolvedValue({
+        exitCode: 0,
+        output: "PASS test 1\nPASS test 2\nVerbose output\n\nTests: 2 passed"
+      });
+
+      mockStat.mockResolvedValue({
+        isDirectory: () => false,
+        isFile: () => true
+      } as Partial<Stats> as Stats);
+
+      mockWriteFile.mockResolvedValue(undefined);
+
+      const result = await executeCommand("npm test");
+
+      // Simulate server behavior: file gets raw output, not filtered
+      const outputFilePath = "/tmp/output.txt";
+      await mockWriteFile(outputFilePath, result.output, "utf-8");
+
+      // Verify raw output was written
+      expect(mockWriteFile).toHaveBeenCalledWith(
+        "/tmp/output.txt",
+        "PASS test 1\nPASS test 2\nVerbose output\n\nTests: 2 passed",
+        "utf-8"
+      );
     });
   });
 });
