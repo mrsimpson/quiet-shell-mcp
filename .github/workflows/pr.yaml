@@ -30,6 +30,9 @@ jobs:
       - name: Check formatting
         run: pnpm run format
 
+      - name: Run linting
+        run: pnpm run lint
+
       - name: Build project
         run: pnpm run build
 

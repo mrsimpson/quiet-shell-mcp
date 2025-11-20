@@ -27,7 +27,7 @@ export function filterOutput(rawOutput: string, template: Template): string {
   let regex: RegExp;
   try {
     regex = new RegExp(template.include_regex);
-  } catch (error) {
+  } catch {
     // Invalid regex - return raw output
     return rawOutput;
   }

@@ -13,11 +13,16 @@ describe('executeCommand', () => {
     vi.clearAllMocks();
   });
 
-  function createMockChildProcess() {
-    const child = new EventEmitter() as any;
-    child.stdout = new EventEmitter();
-    child.stderr = new EventEmitter();
-    return child;
+  function createMockChildProcess(): EventEmitter & {
+    stdout: EventEmitter;
+    stderr: EventEmitter;
+  } {
+    const child = new EventEmitter();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mock = child as any;
+    mock.stdout = new EventEmitter();
+    mock.stderr = new EventEmitter();
+    return mock;
   }
 
   it('should execute command and return exit code', async () => {

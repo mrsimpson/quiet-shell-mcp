@@ -37,7 +37,7 @@ describe('MCP Server Integration', () => {
     });
 
     it('should have agent-friendly template descriptions', () => {
-      Object.entries(BUILTIN_TEMPLATES).forEach(([name, template]) => {
+      Object.entries(BUILTIN_TEMPLATES).forEach(([, template]) => {
         expect(template.description).toContain('Use when');
         expect(template.description).toContain('returns');
       });
@@ -76,7 +76,7 @@ describe('MCP Server Integration', () => {
     });
 
     it('should interpret non-zero exit code as failure', () => {
-      const exitCode = 1;
+      const exitCode: number = 1;
       const result = exitCode === 0 ? 'success' : 'failure';
       expect(result).toBe('failure');
     });
@@ -105,7 +105,7 @@ describe('MCP Server Integration', () => {
       });
 
       const templateManager = new TemplateManager();
-      const result = await executeCommand('npm test');
+      await executeCommand('npm test');
       const vitestTemplate = templateManager.getTemplate('vitest');
 
       expect(vitestTemplate).toBeDefined();
@@ -147,16 +147,19 @@ describe('MCP Server Integration', () => {
       expect(response.templates.length).toBeGreaterThanOrEqual(4);
       
       const firstTemplate = response.templates[0];
-      expect(firstTemplate).toHaveProperty('name');
-      expect(firstTemplate).toHaveProperty('description');
-      expect(firstTemplate).toHaveProperty('include_regex');
-      expect(firstTemplate).toHaveProperty('tail_paragraphs');
+      if (firstTemplate) {
+        expect(firstTemplate).toHaveProperty('name');
+        expect(firstTemplate).toHaveProperty('description');
+        expect(firstTemplate).toHaveProperty('include_regex');
+        expect(firstTemplate).toHaveProperty('tail_paragraphs');
+      }
     });
   });
 
   describe('Parameter Validation', () => {
     it('should validate command parameter exists', () => {
       const args = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const isValid = 'command' in args && typeof (args as any).command === 'string';
       expect(isValid).toBe(false);
     });
