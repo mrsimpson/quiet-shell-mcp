@@ -13,10 +13,9 @@ describe('executeCommand', () => {
     vi.clearAllMocks();
   });
 
-  function createMockChildProcess(): EventEmitter & {
-    stdout: EventEmitter;
-    stderr: EventEmitter;
-  } {
+  // Mock child process for testing
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function createMockChildProcess(): any {
     const child = new EventEmitter();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mock = child as any;
