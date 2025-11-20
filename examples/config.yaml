@@ -1,0 +1,54 @@
+# Example Custom Template Configuration
+
+# Place this file at the root of your repository as:
+# .quiet-shell/config.yaml
+
+templates:
+  # Jest test framework
+  jest:
+    description: "Use when running tests with Jest - returns failed tests and test summary"
+    include_regex: "(FAIL|●|✕|Error:|FAILED)"
+    tail_paragraphs: 2
+
+  # ESLint
+  eslint:
+    description: "Use when running ESLint - returns linting errors and summary"
+    include_regex: "(error|warning|✖)"
+    tail_paragraphs: 1
+
+  # Mocha test framework
+  mocha:
+    description: "Use when running tests with Mocha - returns failed tests and summary"
+    include_regex: "(failing|Error:|✖)"
+    tail_paragraphs: 2
+
+  # Go tests
+  go-test:
+    description: "Use when running Go tests - returns test failures and summary"
+    include_regex: "(FAIL|--- FAIL|panic)"
+    tail_paragraphs: 1
+
+  # Rust cargo
+  cargo-test:
+    description: "Use when running Rust tests with cargo - returns test failures and summary"
+    include_regex: "(FAILED|failures:|error\\[E)"
+    tail_paragraphs: 2
+
+  # Python pytest
+  pytest:
+    description: "Use when running tests with pytest - returns failed tests and summary"
+    include_regex: "(FAILED|ERROR|assert|E   )"
+    tail_paragraphs: 2
+
+  # Gradle build
+  gradle-build:
+    description: "Use when building with Gradle - returns build errors and summary"
+    include_regex: "(FAILURE|error:|> Task .* FAILED)"
+    tail_paragraphs: 1
+
+  # Override built-in template example
+  # (custom template with same name overrides built-in)
+  vitest:
+    description: "Custom Vitest config with more verbose error context"
+    include_regex: "(FAIL|ERROR|✖|❯|expected|received)"
+    tail_paragraphs: 3

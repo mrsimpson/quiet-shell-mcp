@@ -1,292 +1,259 @@
-<a name="readme-top"></a>
+# quiet-shell
 
-<br />
-<div align="center">
-  <h1>Modern Typescript Monorepo Example</h1>
-  <p>A modern monorepo example using Typescript, PNPM and Turborepo.</p>
+MCP server that executes shell commands with intelligent output filtering to reduce AI agent context consumption.
 
-  <a href="https://github.com/bakeruk/modern-monorepo-example/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/bakeruk/modern-typescript-monorepo-example.svg?style=for-the-badge" alt="License" />
-  </a>
-  <a href="https://linkedin.com/in/lukebaker87">
-    <img src="https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555" alt="LinkedIn" />
-  </a>
-</div>
-<br />
+## Problem
 
-## Table of Contents
+When AI coding assistants execute shell commands (especially tests and builds), they receive thousands of lines of verbose output that:
 
-- [Table of Contents](#table-of-contents)
-- [About the project](#about-the-project)
-  - [Built With](#built-with)
-    - [PNPM](#pnpm)
-    - [Turborepo](#turborepo)
-    - [Husky](#husky)
-    - [Typescript](#typescript)
-    - [Prettier](#prettier)
-    - [Eslint](#eslint)
-    - [Oxlint](#oxlint)
-    - [Nodemon](#nodemon)
-    - [Vitest](#vitest)
-    - [GitHub Actions](#github-actions)
-    - [Conventional Commits](#conventional-commits)
-    - [Vitepress](#vitepress)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-    - [PNPM](#pnpm-1)
-    - [Node LTS (18)](#node-lts-18)
-  - [Installation](#installation)
-- [Usage](#usage)
-- [Deployment](#deployment)
-  - [Docker](#docker)
-- [License](#license)
+- Consume valuable context window tokens
+- Bury important information (errors, failures) in noise
+- Make it difficult to focus on actionable feedback
 
-## About the project
+**Example**: Running tests with 50 passing and 2 failing tests generates 2000+ lines of output, but agents only need the ~20 lines showing failures and summary.
 
-Technology and its tooling evolves overtime, the aim of this project is to provide a modern Typescript monorepo example for today and for the future. Watch this space as time progresses to be kept up to date with changes within this area.
+## Solution
 
-Feel free to ask any questions or raise any issues.
+quiet-shell executes commands and intelligently filters output using configurable templates:
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+- **Regex filtering**: Keep only lines matching error patterns
+- **Tail paragraphs**: Always include summary sections
+- **Result interpretation**: Quick success/failure status
+- **Built-in templates**: Pre-configured for common tools (tsc, vitest, maven)
+- **Custom templates**: Define your own filters per repository
 
-### Built With
+## Installation
 
-This project uses the following technologies and tools:
-
-- [PNPM](https://pnpm.io/) - Package management
-- [Turborepo](https://turbo.build/repo) - High performance build system
-- [Husky](https://typicode.github.io/husky/) - Git hooks
-- [Typescript](https://www.typescriptlang.org/) - Type-safe codebase
-- [Prettier](https://prettier.io/) - Code formatter
-- [Eslint](https://eslint.org/) - Code linter
-- [Oxlint](https://oxc.rs/) - Fast Rust-based linter
-- [Nodemon](https://github.com/remy/nodemon) - Development runtime (script monitor)
-- [Vitest](https://vitest.dev/) - Frontend & backend test suite
-- [GitHub Actions](https://github.com/features/actions) - CI/CD workflow automation
-- [Conventional Commits](https://www.conventionalcommits.org/) - Commit message standard
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### PNPM
-
-A Fast, disk space efficient package manager with native workspace support. PNPM is a drop-in replacement for [NPM](https://github.com/npm/cli) and [Yarn](https://yarnpkg.com/) (`v1` & `v2`). It's faster than both and uses less disk space. It has a lockfile that is compatible with both NPM and Yarn. With regard to a monorepo, in most cases, it also serves as a replacement for [Lerna](https://lerna.js.org/).
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### Turborepo
-
-A high-performance build system for monorepos. Turborepo is a replacement for [Lerna](https://lerna.js.org/) and it is mildly faster than Lerna's integrated counterpart [Nx](https://nx.dev/). It also requires less configuration and has less of a learning curve compared to Nx if used independently.
-
-It is worth mentioning, along side Nodemon, you can get the same development experience as if you were working with [Concurrently](https://github.com/open-cli-tools/concurrently) to run multiple development scripts or packages local to the repository.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### Husky
-
-A modern Git hooks manager.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### Typescript
-
-A superset of JavaScript that compiles to clean JavaScript code. A type-safe coding language and a great tool for large codebases as it helps to prevent bugs and improves code quality.
-
-You will notice 3 `tsconfig.ts` file variants in the root of the project.
-
-- `tsconfig.base.json` - This is the base configuration for all packages within the monorepo. It is worth pointing out that we extend the recommended rules for the current Node LTS version and for strict type-checking from `@tsconfig/node-lts-strictest` ([tsconfig/bases](https://github.com/tsconfig/bases))
-- `tsconfig.build.json` - This is the configuration for the build process. It extends the base configuration and configures where the compiled codebase should be outputted to and what should be compiled.
-- `tsconfig.json` - This is the configuration for the root of the monorepo mainly for the IDE to use and other libraries that may need it such as Eslint (`@typescript-eslint`). It also extends the base configuration.
-
-Within each `packages/*` directory, you will notice a `tsconfig.json` and `tsconfig.build.json` file. This is for package specific Typescript configuration. It is important in some aspects to treat each package independently from each other as they may have different requirements.
-
-For example, the `tsconfig.build.json` file within a `packages/api` directory may have its `module` option set to `commonjs`. Whereas the `tsconfig.build.json` file within a `packages/frontend` directory might have its `module` option set to `esnext`.
-
-It is worth mentioning, to improve performance, the [incremental](https://www.typescriptlang.org/tsconfig#incremental) option within the `tsconfig.base.json` has been set to `true`. This will cache the results of the last successful compilation and use it to speed up the next compilation.
-
-Another configuration that is worth mentioning, is that the [declaration](https://www.typescriptlang.org/tsconfig#declaration) option has also been set to `true`. This will generate `.d.ts` files for each file within the built `dist` directory. These files separate out the type information from the compiled code resulting in cleaner code output. This is also faster for the packages that depend on them as the compile doesn't have to sift through the code to find the types.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### Prettier
-
-An opinionated code formatter.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### Eslint
-
-A pluggable and configurable linting tool that statically analyses your code to quickly find problems and can be used to enforce code style.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### Oxlint
-
-A fast Rust-based linter that provides extremely fast linting performance. Oxlint runs before ESLint in the linting pipeline to catch common issues quickly, with ESLint handling more complex rules and auto-fixing. This two-stage approach provides both speed and comprehensive coverage.
-
-The project uses oxlint with lint-staged for pre-commit hooks, ensuring fast feedback during development while maintaining code quality.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### Nodemon
-
-A monitoring tool that restarts the configured executable when file changes in the configured directory are detected.
-
-Within the `packages/*` directories, you will notice a `nodemode.json` that has an executable script of `exec: pnpm typecheck && pnpm build`. This is to ensure that the codebase is fully type-checked and built - ready for dependants to import. Remember, that the built configuration is only intended for the final built code and not the source code. This form of double Type-checking also quite performant as the Typescript compilation is cached in the form a generate `tsconfig.tsbuildinfo` file thanks to the `incremental: true` Typescript configuration option.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### Vitest
-
-A fast and feature-rich Vite-native testing framework. Vitest provides a seamless testing experience with native TypeScript support, built-in code coverage, and a simple, Jest-compatible API.
-
-Unlike the previous Jest setup, Vitest leverages Vite's native ESM support and provides faster test execution with minimal configuration.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### GitHub Actions
-
-A CI/CD workflow automation tool that is built into GitHub. It is a great tool for automating your workflow and can be used to build, test and deploy your codebase.
-
-It is worth pointing out the `.github/workflows/pr.yaml` file. This workflow runs on every `pull_request` and validates the PR title follows the [Conventional Commits](https://www.conventionalcommits.org/) specification.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### Conventional Commits
-
-A specification for adding human and machine readable meaning to commit messages. It is a great tool for automating your workflow and can be used to build, test and deploy your codebase.
-
-The project follows the Conventional Commits specification with the following accepted prefixes:
-
-- `feat:` - A new feature (minor version bump)
-- `fix:` - A bug fix (patch version bump)
-- `docs:` - Documentation changes
-- `style:` - Code formatting, missing semicolons, etc. (no functional changes)
-- `refactor:` - Code refactoring without introducing new features or fixing bugs
-- `test:` - Adding or modifying tests
-- `chore:` - Maintenance tasks, updates to build processes, etc.
-- `perf:` - Performance improvements
-- `ci:` - Changes to CI configuration files and scripts
-- `build:` - Changes that affect the build system or external dependencies
-  Optional scopes can be added in parentheses to provide additional context:
-
-- `feat(auth): add two-factor authentication`
-- `fix(api): resolve connection timeout issue`
-
-Breaking changes should be indicated by adding an exclamation mark after the type/scope:
-
-- `feat!: major API redesign`
-- `refactor!(core): complete system architecture change`
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### VitePress
-
-A modern static site generator powered by Vue 3 and Vite. VitePress enables the creation of fast, lightweight documentation sites with a focus on developer experience and performance.
-
-Project documentation scripts:
-
-- `pnpm docs:dev`: Start local development server
-- `pnpm docs:build`: Build production documentation
-- `pnpm docs:preview`: Preview production build locally
-
-The documentation is located in the `docs/` directory and uses VitePress and supports Mermaid diagrams.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### Arc42
-
-A comprehensive template for software and system architecture documentation. Arc42 provides a structured approach to documenting software architectures, making complex systems more understandable and maintainable.
-
-The project uses VitePress to render Arc42-style documentation, allowing for easy navigation and maintenance of architectural documentation.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Prerequisites
-
-Here's a list of technologies that you will need in order to run this project. We're going to assume that you already have Node.js installed, however, you will need the required version (LTS or v18+) as stated in the `package.json:engines.node` configuration.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-#### PNPM
-
-If your computer doesn't already have PNPM installed, you can install it by visiting the [PNPM installation](https://pnpm.io/installation) page.
-
-If you're using MacOS, you can install it using Homebrew.
-
-```sh
-brew install pnpm
+```bash
+npm install -g @codemcp/quiet-shell-mcp
 ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+Or with pnpm:
 
-#### Node LTS (18)
-
-No you have PNPM installed, you can install the required Node version by running the following command.
-
-```sh
-pnpm add -g n
-n lts
+```bash
+pnpm add -g @codemcp/quiet-shell-mcp
 ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+## MCP Client Configuration
 
-### Installation
+### Claude Desktop
 
-To install the monorepo and all of its dependancies, simply run the following command at the root of the project.
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
-```sh
-pnpm install
+```json
+{
+  "mcpServers": {
+    "quiet-shell": {
+      "command": "quiet-shell-mcp"
+    }
+  }
+}
 ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+### Other MCP Clients
+
+Use the command: `quiet-shell-mcp`
+
+The server communicates via stdio following the Model Context Protocol specification.
 
 ## Usage
 
-To run the monorepo and all of its packages, simply run the following command at the root of the project.
+### Tools Available
 
-```sh
-pnpm dev
+#### `execute_command`
+
+Execute shell command with optional output filtering.
+
+**Parameters:**
+
+- `command` (required): Shell command to execute
+- `template` (optional): Filter template name (use `list_templates` to see available)
+
+**Response:**
+
+```json
+{
+  "result": "success",
+  "exit_code": 0,
+  "output": "filtered output here",
+  "template_used": "vitest"
+}
 ```
 
-Turborepo and Nodemon will run each package in parallel and watch for file changes.
+**Examples:**
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+```typescript
+// Run tests with filtering
+execute_command("npm test", "vitest");
+// Returns: only failed tests + summary (~20 lines instead of 2000+)
 
-## Deployment
+// TypeScript compilation
+execute_command("tsc --noEmit", "tsc");
+// Returns: only type errors + summary
 
-There are several ways to deploy this project. Depending on your requirements, here are some examples of some popular methods.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Docker
-
-Making use of the [pnpm deploy](https://pnpm.io/cli/deploy) command, we can create a Docker image that only contains the production dependencies for a specific package within the monorepo. This essential bundles the given package and all of its local and external dependencies.
-
-```dockerfile
-FROM workspace as pruned
-RUN pnpm --filter <PACKAGE_NAME> --prod deploy <TARGET_DIRECTORY>
-
-FROM node:18-alpine
-WORKDIR /app
-
-ENV NODE_ENV=production
-
-COPY --from=pruned /app/pruned .
-
-ENTRYPOINT ["node", "index.js"]
+// Raw output (no filtering)
+execute_command("echo hello");
+// Returns: complete output
 ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+#### `list_templates`
+
+List all available filtering templates with descriptions.
+
+**Response:**
+
+```json
+{
+  "templates": [
+    {
+      "name": "vitest",
+      "description": "Use when running tests with Vitest - returns failed tests and test summary",
+      "include_regex": "(FAIL|ERROR|✖|❯.*failed)",
+      "tail_paragraphs": 2
+    },
+    ...
+  ],
+  "count": 4
+}
+```
+
+## Built-in Templates
+
+- **tsc**: TypeScript compiler - returns type errors and summary
+- **vitest**: Vitest tests - returns test failures and summary
+- **maven-build**: Maven build - returns build errors and summary
+- **maven-test**: Maven tests - returns test failures and summary
+
+## Custom Templates
+
+Create `.quiet-shell/config.yaml` in your repository:
+
+```yaml
+templates:
+  jest:
+    description: "Use when running tests with Jest - returns failed tests and test summary"
+    include_regex: "(FAIL|●|✕)"
+    tail_paragraphs: 2
+
+  eslint:
+    description: "Use when running ESLint - returns linting errors and summary"
+    include_regex: "(error|warning|✖)"
+    tail_paragraphs: 1
+```
+
+**Features:**
+
+- Custom templates extend built-in templates
+- Custom templates can override built-in templates (same name)
+- Configuration is version-controlled and shared with team
+- Server discovers config by searching upward from current directory
+
+## How It Works
+
+### Template Structure
+
+Each template defines:
+
+- `include_regex`: Pattern to match important lines (errors, failures)
+- `tail_paragraphs`: Number of paragraphs to include from end (summaries)
+- `description`: When to use this template (for agent discovery)
+
+### Filtering Algorithm
+
+1. **Parse** output into paragraphs (groups of lines separated by blank lines)
+2. **Filter** lines matching `include_regex`
+3. **Extract** last N paragraphs (summaries)
+4. **Combine** and deduplicate (preserve order)
+5. **Return** filtered output
+
+### Example
+
+**Input** (2000 lines):
+
+```
+✓ test 1 passed
+✓ test 2 passed
+... (48 more passing tests)
+✖ test 51 failed
+  Expected: true
+  Received: false
+✖ test 52 failed
+  Error: timeout
+
+Tests: 50 passed, 2 failed, 52 total
+Time: 5.2s
+```
+
+**Output with `vitest` template** (~10 lines):
+
+```
+✖ test 51 failed
+  Expected: true
+  Received: false
+✖ test 52 failed
+  Error: timeout
+Tests: 50 passed, 2 failed, 52 total
+Time: 5.2s
+```
+
+## Development
+
+### Monorepo Structure
+
+```
+packages/
+  core/          # @codemcp/quiet-shell-core
+                 # Reusable filtering logic
+
+  mcp-server/    # @codemcp/quiet-shell-mcp
+                 # MCP protocol implementation
+```
+
+### Build
+
+```bash
+pnpm install
+pnpm build
+```
+
+### Test
+
+```bash
+pnpm test
+```
+
+### Test with MCP Inspector
+
+```bash
+npx @modelcontextprotocol/inspector quiet-shell-mcp
+```
+
+## Architecture
+
+- **Logger**: Dependency-injected logger (stderr only, never stdout)
+- **Template Manager**: Config loading with 60s cache TTL
+- **Command Executor**: Spawns commands, captures stdout/stderr
+- **Output Filter**: Paragraph-based regex filtering
+- **MCP Server**: stdio transport, structured JSON responses
+
+## Requirements
+
+- Node.js >= 18
+- pnpm >= 9 (for development)
 
 ## License
 
-Distributed under the MIT License. See the local `LICENSE` file for more information.
+MIT
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+## Contributing
+
+Contributions welcome! This project uses:
+
+- TypeScript with strict mode
+- Vitest for testing
+- ESLint + Prettier for code quality
+- Turbo for monorepo builds
+
+## Credits
+
+Built with the [Model Context Protocol](https://modelcontextprotocol.io/) SDK.

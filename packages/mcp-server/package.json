@@ -1,0 +1,37 @@
+{
+  "name": "@codemcp/quiet-shell-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for executing shell commands with intelligent output filtering",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "bin": {
+    "quiet-shell-mcp": "dist/bin.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "clean:build": "rimraf ./dist",
+    "dev": "nodemon",
+    "lint": "eslint .",
+    "lint:fix": "pnpm lint --fix",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@codemcp/quiet-shell-core": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.19.1"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "shell",
+    "command",
+    "filter",
+    "ai",
+    "assistant"
+  ],
+  "license": "MIT"
+}
