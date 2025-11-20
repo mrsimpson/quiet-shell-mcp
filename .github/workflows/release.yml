@@ -17,16 +17,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: "22"
-
       - name: Enable Corepack
         run: corepack enable
 
       - name: Install pnpm via Corepack
         run: corepack prepare pnpm@9.14.2 --activate
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
 
       - name: Install dependencies
         run: pnpm install
@@ -53,17 +53,17 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: "22"
-          registry-url: "https://registry.npmjs.org"
-
       - name: Enable Corepack
         run: corepack enable
 
       - name: Install pnpm via Corepack
         run: corepack prepare pnpm@9.14.2 --activate
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
         run: pnpm install
