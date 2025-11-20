@@ -1,21 +1,24 @@
 {
-  "name": "modern-monorepo-example",
-  "version": "0.0.0-development",
-  "description": "Template for a typescript based monorepo, batteries included",
+  "name": "@codemcp/quiet-shell-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for executing shell commands with intelligent output filtering",
   "authors": [
-    "Luke Baker <luke.baker@live.com>",
     "Oliver Jägle <github@beimir.net>"
   ],
   "license": "MIT",
   "keywords": [
-    "NPM",
-    "package",
-    "monorepo",
-    "typescript"
+    "mcp",
+    "model-context-protocol",
+    "shell",
+    "command",
+    "filter",
+    "output",
+    "ai",
+    "assistant"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/mrsimpson/template-typescript-monorepo"
+    "url": "https://github.com/mrsimpson/quiet-shell-mcp"
   },
   "publishConfig": {
     "access": "public"
