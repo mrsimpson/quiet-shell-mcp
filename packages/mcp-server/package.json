@@ -33,5 +33,10 @@
     "ai",
     "assistant"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrsimpson/quiet-shell-mcp",
+    "directory": "packages/mcp-server"
+  },
   "license": "MIT"
 }

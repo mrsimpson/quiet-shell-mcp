@@ -1,1 +1,0 @@
-{"timestamp":"2025-11-20T10:16:04.457Z","level":"ERROR","component":"mcp-server","message":"Failed to start HTTP server","data":{"port":3000,"error":"connect ECONNREFUSED /Users/oliverjaegle/.docker/run/docker.sock"}}

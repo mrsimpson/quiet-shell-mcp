@@ -30,5 +30,10 @@
     "filter",
     "output"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrsimpson/quiet-shell-mcp",
+    "directory": "packages/core"
+  },
   "license": "MIT"
 }
