@@ -62,7 +62,7 @@ export function createQuietShellServer(): Server {
             suppress_output_on_success: {
               type: "boolean",
               description:
-                "Optional: Suppress output when command succeeds (exit code 0). Defaults to true. Set to false to always show output even on success. Only applies when no template is specified.",
+                "Optional: Suppress output when command succeeds (exit code 0). Defaults to true. Set to false to always show output even on success.",
               default: true
             }
           },
