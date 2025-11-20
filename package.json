@@ -1,0 +1,83 @@
+{
+  "name": "modern-monorepo-example",
+  "version": "0.0.0-development",
+  "description": "Template for a typescript based monorepo, batteries included",
+  "authors": [
+    "Luke Baker <luke.baker@live.com>",
+    "Oliver Jägle <github@beimir.net>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "NPM",
+    "package",
+    "monorepo",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrsimpson/template-typescript-monorepo"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=9.0.0"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "turbo run build",
+    "build:clean": "turbo run clean:build",
+    "dev": "turbo run dev",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "lint-format": "turbo run --parallel lint format ",
+    "lint-format:fix": "turbo run --parallel lint:fix format:fix",
+    "lint": "oxlint && eslint",
+    "lint:fix": "oxlint --fix && eslint --fix",
+    "lint:oxlint": "oxlint",
+    "lint:oxlint:fix": "oxlint --fix",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "test": "turbo run test",
+    "test:watch": "turbo run test",
+    "typecheck": "turbo run --parallel typecheck",
+    "update-deps": "pnpm update --latest --recursive",
+    "update-deps:interactive": "pnpm update --latest --interactive --recursive",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@braintree/sanitize-url": "7.1.1",
+    "@eslint/js": "9.34.0",
+    "@swc/core": "^1.13.5",
+    "@tsconfig/node22": "22.0.2",
+    "@tsconfig/strictest": "2.0.5",
+    "@types/eslint-config-prettier": "6.11.3",
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "cytoscape": "3.33.1",
+    "cytoscape-cose-bilkent": "4.1.0",
+    "dayjs": "1.11.18",
+    "debug": "4.4.1",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
+    "nodemon": "^3.1.10",
+    "oxlint": "1.14.0",
+    "prettier": "^3.6.2",
+    "rimraf": "^6.0.1",
+    "turbo": "^2.5.6",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "8.42.0",
+    "vitepress": "1.6.4",
+    "vitepress-plugin-mermaid": "2.0.17",
+    "vitest": "^3.2.4"
+  },
+  "packageManager": "pnpm@9.14.2"
+}
