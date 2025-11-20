@@ -2,36 +2,36 @@
  * MCP Server implementation for quiet-shell
  */
 
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-  Tool,
-} from '@modelcontextprotocol/sdk/types.js';
+  Tool
+} from "@modelcontextprotocol/sdk/types.js";
 import {
   createLogger,
   TemplateManager,
   executeCommand,
-  filterOutput,
-} from '@codemcp/quiet-shell-core';
+  filterOutput
+} from "@codemcp/quiet-shell-core";
 
 /**
  * Create quiet-shell MCP server
  */
 export function createQuietShellServer(): Server {
-  const logger = createLogger('quiet-shell-mcp');
+  const logger = createLogger("quiet-shell-mcp");
   const templateManager = new TemplateManager(logger);
 
   const server = new Server(
     {
-      name: 'quiet-shell',
-      version: '0.1.0',
+      name: "quiet-shell",
+      version: "0.1.0"
     },
     {
       capabilities: {
-        tools: {},
-      },
+        tools: {}
+      }
     }
   );
 
@@ -42,36 +42,36 @@ export function createQuietShellServer(): Server {
 
     const tools: Tool[] = [
       {
-        name: 'execute_command',
+        name: "execute_command",
         description:
-          'Execute shell command with optional intelligent output filtering to reduce context consumption. Returns result status (success/failure), exit code, and filtered output. Filtering removes verbose successful operations while preserving errors, failures, and summaries.',
+          "Execute shell command with optional intelligent output filtering to reduce context consumption. Returns result status (success/failure), exit code, and filtered output. Filtering removes verbose successful operations while preserving errors, failures, and summaries.",
         inputSchema: {
-          type: 'object',
+          type: "object",
           properties: {
             command: {
-              type: 'string',
+              type: "string",
               description:
-                "Shell command to execute (e.g., 'npm test', 'tsc --noEmit', 'mvn clean install')",
+                "Shell command to execute (e.g., 'npm test', 'tsc --noEmit', 'mvn clean install')"
             },
             template: {
-              type: 'string',
+              type: "string",
               enum: templateNames,
               description:
-                'Optional: Filter template to apply. Each template uses regex patterns to keep only relevant output (errors, failures) and summary paragraphs. Use list_templates tool to see detailed descriptions of available templates. Omit this parameter to receive raw unfiltered output.',
-            },
+                "Optional: Filter template to apply. Each template uses regex patterns to keep only relevant output (errors, failures) and summary paragraphs. Use list_templates tool to see detailed descriptions of available templates. Omit this parameter to receive raw unfiltered output."
+            }
           },
-          required: ['command'],
-        },
+          required: ["command"]
+        }
       },
       {
-        name: 'list_templates',
+        name: "list_templates",
         description:
-          'List all available output filtering templates with detailed descriptions. Templates define how command output is filtered to show only relevant information.',
+          "List all available output filtering templates with detailed descriptions. Templates define how command output is filtered to show only relevant information.",
         inputSchema: {
-          type: 'object',
-          properties: {},
-        },
-      },
+          type: "object",
+          properties: {}
+        }
+      }
     ];
 
     return { tools };
@@ -83,19 +83,21 @@ export function createQuietShellServer(): Server {
 
     try {
       switch (name) {
-        case 'execute_command': {
+        case "execute_command": {
           const { command, template } = args as {
             command: string;
             template?: string;
           };
 
-          if (!command || typeof command !== 'string') {
-            throw new Error('command parameter is required and must be a string');
+          if (!command || typeof command !== "string") {
+            throw new Error(
+              "command parameter is required and must be a string"
+            );
           }
 
-          logger.info('Executing command:', command);
+          logger.info("Executing command:", command);
           if (template) {
-            logger.info('Using template:', template);
+            logger.info("Using template:", template);
           }
 
           // Execute command
@@ -105,13 +107,13 @@ export function createQuietShellServer(): Server {
           let filteredOutput = result.output;
           let templateUsed: string | null = null;
 
-          if (template && typeof template === 'string') {
+          if (template && typeof template === "string") {
             const templateObj = templateManager.getTemplate(template);
 
             if (!templateObj) {
               const availableTemplates = Object.keys(
                 templateManager.getAvailableTemplates()
-              ).join(', ');
+              ).join(", ");
               throw new Error(
                 `Template "${template}" not found. Use list_templates tool to see available templates. Available: ${availableTemplates}`
               );
@@ -119,52 +121,56 @@ export function createQuietShellServer(): Server {
 
             filteredOutput = filterOutput(result.output, templateObj);
             templateUsed = template;
-            logger.info(`Filtered output: ${result.output.length} → ${filteredOutput.length} characters`);
+            logger.info(
+              `Filtered output: ${result.output.length} → ${filteredOutput.length} characters`
+            );
           }
 
           // Return structured response
           return {
             content: [
               {
-                type: 'text',
+                type: "text",
                 text: JSON.stringify(
                   {
-                    result: result.exitCode === 0 ? 'success' : 'failure',
+                    result: result.exitCode === 0 ? "success" : "failure",
                     exit_code: result.exitCode,
                     output: filteredOutput,
-                    template_used: templateUsed,
+                    template_used: templateUsed
                   },
                   null,
                   2
-                ),
-              },
-            ],
+                )
+              }
+            ]
           };
         }
 
-        case 'list_templates': {
+        case "list_templates": {
           const templates = templateManager.getAvailableTemplates();
-          const templateList = Object.entries(templates).map(([name, template]) => ({
-            name,
-            description: template.description,
-            include_regex: template.include_regex,
-            tail_paragraphs: template.tail_paragraphs,
-          }));
+          const templateList = Object.entries(templates).map(
+            ([name, template]) => ({
+              name,
+              description: template.description,
+              include_regex: template.include_regex,
+              tail_paragraphs: template.tail_paragraphs
+            })
+          );
 
           return {
             content: [
               {
-                type: 'text',
+                type: "text",
                 text: JSON.stringify(
                   {
                     templates: templateList,
-                    count: templateList.length,
+                    count: templateList.length
                   },
                   null,
                   2
-                ),
-              },
-            ],
+                )
+              }
+            ]
           };
         }
 
@@ -173,22 +179,22 @@ export function createQuietShellServer(): Server {
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      logger.error('Tool execution error:', message);
+      logger.error("Tool execution error:", message);
 
       return {
         content: [
           {
-            type: 'text',
+            type: "text",
             text: JSON.stringify(
               {
-                error: message,
+                error: message
               },
               null,
               2
-            ),
-          },
+            )
+          }
         ],
-        isError: true,
+        isError: true
       };
     }
   });
@@ -206,5 +212,5 @@ export async function startServer(): Promise<void> {
   await server.connect(transport);
 
   // Log startup to stderr (not stdout - would break MCP protocol)
-  process.stderr.write('[quiet-shell] MCP Server started\n');
+  process.stderr.write("[quiet-shell] MCP Server started\n");
 }

@@ -3,4 +3,4 @@
  * MCP server for executing shell commands with intelligent output filtering
  */
 
-export { createQuietShellServer, startServer } from './server.js';
+export { createQuietShellServer, startServer } from "./server.js";

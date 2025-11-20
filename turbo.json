@@ -7,9 +7,7 @@
     "//#lint:fix": {
       "inputs": ["!.git/**", "!node_modules/**", "!packages/**"]
     },
-    "//#format": {
-      "inputs": ["!.git/**", "!node_modules/**", "!packages/**"]
-    },
+    "//#format": {},
     "//#lint:oxlint": {
       "inputs": ["!.git/**", "!node_modules/**", "!packages/**"]
     },
@@ -28,11 +26,8 @@
       "cache": false,
       "persistent": true
     },
-    "lint": {},
-    "lint:fix": {},
     "lint:oxlint": {},
     "lint:oxlint:fix": {},
-    "format": {},
     "format:fix": {},
     "test": {
       "dependsOn": ["build"]

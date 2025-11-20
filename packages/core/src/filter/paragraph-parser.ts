@@ -13,13 +13,13 @@ export function parseParagraphs(output: string): string[][] {
     return [];
   }
 
-  const lines = output.split('\n');
+  const lines = output.split("\n");
   const paragraphs: string[][] = [];
   let currentParagraph: string[] = [];
 
   for (const line of lines) {
     const trimmedLine = line.trim();
-    
+
     if (trimmedLine.length === 0) {
       // Blank line - end current paragraph if it has content
       if (currentParagraph.length > 0) {

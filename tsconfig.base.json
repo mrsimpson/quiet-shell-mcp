@@ -1,17 +1,19 @@
 {
-  "extends": [
-    "@tsconfig/node22/tsconfig.json",
-    "@tsconfig/strictest/tsconfig.json"
-  ],
   "compilerOptions": {
     /* Basic Options */
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "NodeNext",
     "incremental": true,
     "declaration": true,
     "allowJs": true,
     "noEmit": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+
     /* Strict Type-Checking Options */
+    "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
@@ -19,7 +21,6 @@
     "strictPropertyInitialization": false,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "resolveJsonModule": true,
 
     /* Experimental Options */
     "experimentalDecorators": true,

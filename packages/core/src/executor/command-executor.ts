@@ -2,8 +2,8 @@
  * Command execution with output capture
  */
 
-import { spawn } from 'node:child_process';
-import type { ExecutionResult, Logger } from '../types.js';
+import { spawn } from "node:child_process";
+import type { ExecutionResult, Logger } from "../types.js";
 
 /**
  * Execute shell command and capture output
@@ -16,47 +16,47 @@ export async function executeCommand(
   logger?: Logger
 ): Promise<ExecutionResult> {
   return new Promise((resolve) => {
-    logger?.debug('Executing command:', command);
+    logger?.debug("Executing command:", command);
 
     const outputChunks: string[] = [];
-    
+
     // Spawn command using shell
     const child = spawn(command, {
       shell: true,
-      stdio: ['ignore', 'pipe', 'pipe'], // stdin ignored, stdout/stderr piped
+      stdio: ["ignore", "pipe", "pipe"] // stdin ignored, stdout/stderr piped
     });
 
     // Capture stdout
-    child.stdout?.on('data', (data: Buffer) => {
+    child.stdout?.on("data", (data: Buffer) => {
       outputChunks.push(data.toString());
     });
 
     // Capture stderr
-    child.stderr?.on('data', (data: Buffer) => {
+    child.stderr?.on("data", (data: Buffer) => {
       outputChunks.push(data.toString());
     });
 
     // Handle completion
-    child.on('close', (code) => {
+    child.on("close", (code) => {
       const exitCode = code ?? 0;
-      const output = outputChunks.join('');
-      
+      const output = outputChunks.join("");
+
       logger?.info(`Command exited with code ${exitCode}`);
       logger?.debug(`Output length: ${output.length} characters`);
 
       resolve({
         exitCode,
-        output,
+        output
       });
     });
 
     // Handle spawn errors
-    child.on('error', (error) => {
-      logger?.error('Command spawn error:', error.message);
-      
+    child.on("error", (error) => {
+      logger?.error("Command spawn error:", error.message);
+
       resolve({
         exitCode: 1,
-        output: `Error executing command: ${error.message}`,
+        output: `Error executing command: ${error.message}`
       });
     });
   });

@@ -3,11 +3,11 @@
  * Search for .quiet-shell/config.yaml from current directory upward
  */
 
-import { existsSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import type { Logger } from '../types.js';
+import { existsSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import type { Logger } from "../types.js";
 
-export const CONFIG_FILE_NAME = '.quiet-shell/config.yaml';
+export const CONFIG_FILE_NAME = ".quiet-shell/config.yaml";
 
 /**
  * Find configuration file by searching upward from current directory
@@ -15,24 +15,27 @@ export const CONFIG_FILE_NAME = '.quiet-shell/config.yaml';
  * @param logger - Logger instance for debugging
  * @returns Path to config file or null if not found
  */
-export function findConfigPath(startDir?: string, logger?: Logger): string | null {
+export function findConfigPath(
+  startDir?: string,
+  logger?: Logger
+): string | null {
   const start = startDir ?? process.cwd();
   let currentDir = resolve(start);
-  const root = resolve('/');
+  const root = resolve("/");
 
-  logger?.debug('Starting config search from:', currentDir);
+  logger?.debug("Starting config search from:", currentDir);
 
   while (true) {
     const configPath = resolve(currentDir, CONFIG_FILE_NAME);
-    
+
     if (existsSync(configPath)) {
-      logger?.info('Found config file:', configPath);
+      logger?.info("Found config file:", configPath);
       return configPath;
     }
 
     // Reached root without finding config
     if (currentDir === root) {
-      logger?.debug('No config file found, searched up to root');
+      logger?.debug("No config file found, searched up to root");
       return null;
     }
 

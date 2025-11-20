@@ -2,8 +2,8 @@
  * Output filtering engine
  */
 
-import type { Template } from '../types.js';
-import { parseParagraphs } from './paragraph-parser.js';
+import type { Template } from "../types.js";
+import { parseParagraphs } from "./paragraph-parser.js";
 
 /**
  * Filter command output based on template
@@ -13,14 +13,14 @@ import { parseParagraphs } from './paragraph-parser.js';
  */
 export function filterOutput(rawOutput: string, template: Template): string {
   if (!rawOutput || rawOutput.trim().length === 0) {
-    return '';
+    return "";
   }
 
   // Parse output into paragraphs
   const paragraphs = parseParagraphs(rawOutput);
-  
+
   if (paragraphs.length === 0) {
-    return '';
+    return "";
   }
 
   // Compile regex from template
@@ -45,7 +45,7 @@ export function filterOutput(rawOutput: string, template: Template): string {
   // Step 2: Extract last N paragraphs
   const tailCount = Math.max(0, template.tail_paragraphs);
   const tailLines: string[] = [];
-  
+
   if (tailCount > 0) {
     const tailParagraphs = paragraphs.slice(-tailCount);
     tailLines.push(...tailParagraphs.flat());
@@ -71,5 +71,5 @@ export function filterOutput(rawOutput: string, template: Template): string {
     }
   }
 
-  return result.join('\n');
+  return result.join("\n");
 }

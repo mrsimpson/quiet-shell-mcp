@@ -4,7 +4,7 @@
  * Entry point for quiet-shell MCP server
  */
 
-import { startServer } from './server.js';
+import { startServer } from "./server.js";
 
 startServer().catch((error) => {
   process.stderr.write(`[quiet-shell] Fatal error: ${error.message}\n`);
