@@ -118,8 +118,10 @@ describe("MCP Server Integration", () => {
       const vitestTemplate = templateManager.getTemplate("vitest");
 
       expect(vitestTemplate).toBeDefined();
-      expect(vitestTemplate?.include_regex).toBe("(FAIL|ERROR|✖|❯.*failed)");
-      expect(vitestTemplate?.tail_paragraphs).toBe(2);
+      expect(vitestTemplate?.include_regex).toBe(
+        "(FAIL|ERROR|✖|❯.*failed|Test Files\\s+\\d+|Tests\\s+\\d+|Tasks:|Cached:|Time:)"
+      );
+      expect(vitestTemplate?.tail_paragraphs).toBe(0);
     });
 
     it("should not apply filtering when template not specified", async () => {
