@@ -1,0 +1,124 @@
+name: Release and Publish
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.14.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Check formatting
+        run: pnpm run format
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Run tests
+        run: pnpm test
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.14.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: "pnpm"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Bump version and create tag
+        id: version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: patch
+          tag_prefix: v
+
+      - name: Update package.json version
+        if: steps.version.outputs.new_tag
+        run: |
+          NEW_VERSION=${{ steps.version.outputs.new_version }}
+
+          # Update root package.json
+          pnpm version $NEW_VERSION --no-git-tag-version
+
+          # Update all workspace package versions
+          pnpm -r exec pnpm version $NEW_VERSION --no-git-tag-version
+
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add package.json packages/*/package.json pnpm-lock.yaml
+          git commit -m "chore: bump version to $NEW_VERSION [skip ci]" || exit 0
+          git push
+
+      - name: Create GitHub Release
+        if: steps.version.outputs.new_tag
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.new_tag }}
+          name: Release ${{ steps.version.outputs.new_tag }}
+          body: ${{ steps.version.outputs.changelog }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to npm
+        if: steps.version.outputs.new_tag
+        run: |
+          NEW_VERSION=${{ steps.version.outputs.new_version }}
+
+          # Publish core package first as mcp-server depends on it
+          cd packages/core
+          pnpm publish --access public --no-git-checks
+          cd ../..
+
+          # Update workspace dependency to actual version for mcp-server
+          cd packages/mcp-server
+          sed -i 's/"@codemcp\/quiet-shell-core": "workspace:\*"/"@codemcp\/quiet-shell-core": "^'$NEW_VERSION'"/g' package.json
+          pnpm publish --access public --no-git-checks
+          cd ../..
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
