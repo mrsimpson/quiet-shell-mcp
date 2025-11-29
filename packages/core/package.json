@@ -1,6 +1,6 @@
 {
   "name": "@codemcp/quiet-shell-core",
-  "version": "0.0.7",
+  "version": "0.2.3",
   "description": "Core logic for quiet-shell MCP server - template management, command execution, output filtering",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
