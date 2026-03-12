@@ -1,6 +1,6 @@
 {
   "name": "@codemcp/quiet-shell",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "MCP server for executing shell commands with intelligent output filtering",
   "authors": [
     "Oliver Jägle <github@beimir.net>"
