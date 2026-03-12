@@ -116,17 +116,8 @@ jobs:
       - name: Publish to npm
         if: steps.version.outputs.new_tag
         run: |
-          NEW_VERSION=${{ steps.version.outputs.new_version }}
-
-          # Publish core package first as mcp-server depends on it
-          cd packages/core
-          pnpm publish --access public --no-git-checks
-          cd ../..
-
-          # Update workspace dependency to actual version for mcp-server
-          cd packages/mcp-server
-          sed -i 's/"@codemcp\/quiet-shell-core": "workspace:\*"/"@codemcp\/quiet-shell-core": "^'$NEW_VERSION'"/g' package.json
-          pnpm publish --access public --no-git-checks
-          cd ../..
+          # Publish only public packages (those without "private": true)
+          # The mcp-server package IS the main @codemcp/quiet-shell package
+          pnpm --filter '@codemcp/quiet-shell' publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
