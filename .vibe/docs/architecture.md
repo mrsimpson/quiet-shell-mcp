@@ -278,7 +278,8 @@ npm install -g @codemcp/quiet-shell
 {
   "mcpServers": {
     "quiet-shell": {
-      "command": "ade-shell"
+      "command": "npx",
+      "args": ["-y", "@codemcp/quiet-shell"]
     }
   }
 }
