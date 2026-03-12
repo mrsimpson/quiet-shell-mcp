@@ -25,13 +25,13 @@ quiet-shell executes commands and intelligently filters output using configurabl
 ## Installation
 
 ```bash
-npm install -g @codemcp/quiet-shell-mcp
+npm install -g @codemcp/quiet-shell
 ```
 
 Or with pnpm:
 
 ```bash
-pnpm add -g @codemcp/quiet-shell-mcp
+pnpm add -g @codemcp/quiet-shell
 ```
 
 ## MCP Client Configuration
@@ -44,7 +44,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 {
   "mcpServers": {
     "quiet-shell": {
-      "command": "quiet-shell-mcp"
+      "command": "ade-shell"
     }
   }
 }
@@ -52,7 +52,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ### Other MCP Clients
 
-Use the command: `quiet-shell-mcp`
+Use the command: `ade-shell`
 
 The server communicates via stdio following the Model Context Protocol specification.
 
@@ -219,7 +219,7 @@ packages/
   core/          # @codemcp/quiet-shell-core
                  # Reusable filtering logic
 
-  mcp-server/    # @codemcp/quiet-shell-mcp
+  mcp-server/    # @codemcp/quiet-shell
                  # MCP protocol implementation
 ```
 
@@ -239,7 +239,7 @@ pnpm test
 ### Test with MCP Inspector
 
 ```bash
-npx @modelcontextprotocol/inspector quiet-shell-mcp
+npx @modelcontextprotocol/inspector ade-shell
 ```
 
 ## Architecture

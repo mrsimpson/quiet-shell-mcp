@@ -1,5 +1,5 @@
 {
-  "name": "@codemcp/quiet-shell-mcp",
+  "name": "@codemcp/quiet-shell",
   "version": "0.3.0",
   "description": "MCP server for executing shell commands with intelligent output filtering",
   "authors": [
@@ -82,5 +82,5 @@
     "vitepress-plugin-mermaid": "2.0.17",
     "vitest": "^3.2.4"
   },
-  "packageManager": "pnpm@9.14.2"
+  "packageManager": "pnpm@10.32.1"
 }

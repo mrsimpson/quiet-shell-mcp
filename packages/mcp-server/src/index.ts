@@ -1,5 +1,5 @@
 /**
- * @codemcp/quiet-shell-mcp
+ * @codemcp/quiet-shell
  * MCP server for executing shell commands with intelligent output filtering
  */
 

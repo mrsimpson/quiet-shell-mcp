@@ -264,7 +264,7 @@ Build a Model Context Protocol (MCP) server called "quiet-shell" that executes s
 **Rationale:**
 
 - **@codemcp/quiet-shell-core**: Reusable logic (template management, filtering, execution)
-- **@codemcp/quiet-shell-mcp**: MCP protocol implementation
+- **@codemcp/quiet-shell**: MCP protocol implementation
 - **@codemcp/quiet-shell-cli**: Future CLI tool for template management
 - Separation of concerns, independent testing, future extensibility
 
