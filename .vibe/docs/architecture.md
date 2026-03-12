@@ -118,7 +118,7 @@ packages/
     - Output filtering
     - No MCP dependencies
 
-  mcp-server/                    # @codemcp/quiet-shell-mcp
+  mcp-server/                    # @codemcp/quiet-shell
     - MCP protocol implementation
     - Depends on core package
     - Server entry point
@@ -272,13 +272,14 @@ Output: config_path | null
 
 ```bash
 # Global installation
-npm install -g @codemcp/quiet-shell-mcp
+npm install -g @codemcp/quiet-shell
 
 # MCP client configuration (e.g., Claude Desktop)
 {
   "mcpServers": {
     "quiet-shell": {
-      "command": "quiet-shell-mcp"
+      "command": "npx",
+      "args": ["-y", "@codemcp/quiet-shell"]
     }
   }
 }
