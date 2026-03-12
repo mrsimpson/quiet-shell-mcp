@@ -44,7 +44,8 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 {
   "mcpServers": {
     "quiet-shell": {
-      "command": "ade-shell"
+      "command": "npx",
+      "args": ["-y", "@codemcp/quiet-shell"]
     }
   }
 }
@@ -52,7 +53,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ### Other MCP Clients
 
-Use the command: `ade-shell`
+Use the command: `npx @codemcp/quiet-shell`
 
 The server communicates via stdio following the Model Context Protocol specification.
 
@@ -239,7 +240,7 @@ pnpm test
 ### Test with MCP Inspector
 
 ```bash
-npx @modelcontextprotocol/inspector ade-shell
+npx @modelcontextprotocol/inspector npx @codemcp/quiet-shell
 ```
 
 ## Architecture

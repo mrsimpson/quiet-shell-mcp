@@ -55,7 +55,7 @@ async function resolveOutputPath(outputPath: string): Promise<string> {
  * Create quiet-shell MCP server
  */
 export function createQuietShellServer(): Server {
-  const logger = createLogger("ade-shell");
+  const logger = createLogger("quiet-shell");
   const templateManager = new TemplateManager(logger);
 
   const server = new Server(
