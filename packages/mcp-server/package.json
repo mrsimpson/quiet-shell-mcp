@@ -9,7 +9,8 @@
     "ade-shell": "dist/bin.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsup",
+    "build:tsc": "tsc -p tsconfig.build.json",
     "clean:build": "rimraf ./dist",
     "dev": "nodemon",
     "test": "vitest --run",
@@ -17,8 +18,11 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@codemcp/quiet-shell-core": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.19.1"
+  },
+  "devDependencies": {
+    "@codemcp/quiet-shell-core": "workspace:*",
+    "tsup": "^8.0.0"
   },
   "keywords": [
     "mcp",
@@ -34,5 +38,8 @@
     "url": "https://github.com/mrsimpson/quiet-shell-mcp",
     "directory": "packages/mcp-server"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
 }

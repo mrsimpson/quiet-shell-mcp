@@ -31,5 +31,6 @@
     "url": "https://github.com/mrsimpson/quiet-shell-mcp",
     "directory": "packages/core"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "private": true
 }
