@@ -6,6 +6,7 @@
   "types": "dist/index.d.ts",
   "type": "module",
   "bin": {
+    "quiet-shell": "dist/bin.js",
     "ade-shell": "dist/bin.js"
   },
   "scripts": {
