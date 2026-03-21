@@ -5,6 +5,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "bin": {
     "quiet-shell": "dist/bin.js",
     "ade-shell": "dist/bin.js"
