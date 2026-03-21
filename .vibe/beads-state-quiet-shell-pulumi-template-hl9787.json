@@ -1,0 +1,29 @@
+{
+  "conversationId": "quiet-shell-pulumi-template-hl9787",
+  "projectPath": "/Users/oliverjaegle/projects/privat/mcp-server/quiet-shell",
+  "epicId": "mcp-server-2",
+  "phaseTasks": [
+    {
+      "phaseId": "explore",
+      "phaseName": "Explore",
+      "taskId": "mcp-server-2.1"
+    },
+    {
+      "phaseId": "plan",
+      "phaseName": "Plan",
+      "taskId": "mcp-server-2.2"
+    },
+    {
+      "phaseId": "code",
+      "phaseName": "Code",
+      "taskId": "mcp-server-2.3"
+    },
+    {
+      "phaseId": "commit",
+      "phaseName": "Commit",
+      "taskId": "mcp-server-2.4"
+    }
+  ],
+  "createdAt": "2026-03-21T12:46:07.343Z",
+  "updatedAt": "2026-03-21T12:46:07.343Z"
+}

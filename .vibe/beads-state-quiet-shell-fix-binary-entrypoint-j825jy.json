@@ -1,0 +1,34 @@
+{
+  "conversationId": "quiet-shell-fix-binary-entrypoint-j825jy",
+  "projectPath": "/Users/oliverjaegle/projects/privat/mcp-server/quiet-shell",
+  "epicId": "mcp-server-1",
+  "phaseTasks": [
+    {
+      "phaseId": "reproduce",
+      "phaseName": "Reproduce",
+      "taskId": "mcp-server-1.1"
+    },
+    {
+      "phaseId": "analyze",
+      "phaseName": "Analyze",
+      "taskId": "mcp-server-1.2"
+    },
+    {
+      "phaseId": "fix",
+      "phaseName": "Fix",
+      "taskId": "mcp-server-1.3"
+    },
+    {
+      "phaseId": "verify",
+      "phaseName": "Verify",
+      "taskId": "mcp-server-1.4"
+    },
+    {
+      "phaseId": "finalize",
+      "phaseName": "Finalize",
+      "taskId": "mcp-server-1.5"
+    }
+  ],
+  "createdAt": "2026-03-21T12:27:44.662Z",
+  "updatedAt": "2026-03-21T12:27:44.662Z"
+}

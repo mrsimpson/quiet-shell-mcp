@@ -19,7 +19,7 @@ quiet-shell executes commands and intelligently filters output using configurabl
 - **Regex filtering**: Keep only lines matching error patterns
 - **Tail paragraphs**: Always include summary sections
 - **Result interpretation**: Quick success/failure status
-- **Built-in templates**: Pre-configured for common tools (tsc, vitest, maven)
+- **Built-in templates**: Pre-configured for common tools (tsc, vitest, maven, pulumi)
 - **Custom templates**: Define your own filters per repository
 
 ## Installation
@@ -131,6 +131,7 @@ List all available filtering templates with descriptions.
 - **vitest**: Vitest tests - returns test failures and summary
 - **maven-build**: Maven build - returns build errors and summary
 - **maven-test**: Maven tests - returns test failures and summary
+- **pulumi-up**: Pulumi deployments - suppresses verbose resource progress, shows only errors, warnings, failures, and final summary
 
 ## Custom Templates
 

@@ -23,7 +23,7 @@ describe("TemplateManager", () => {
     const templates = manager.getAvailableTemplates();
 
     expect(templates).toEqual(BUILTIN_TEMPLATES);
-    expect(Object.keys(templates)).toHaveLength(4); // tsc, vitest, maven-build, maven-test
+    expect(Object.keys(templates)).toHaveLength(5); // tsc, vitest, maven-build, maven-test, pulumi-up
   });
 
   it("should merge custom templates with built-in", () => {
@@ -43,7 +43,7 @@ describe("TemplateManager", () => {
 
     expect(templates).toHaveProperty("tsc"); // built-in
     expect(templates).toHaveProperty("custom-tool"); // custom
-    expect(Object.keys(templates)).toHaveLength(5); // 4 built-in + 1 custom
+    expect(Object.keys(templates)).toHaveLength(6); // 5 built-in + 1 custom
   });
 
   it("should allow custom templates to override built-in", () => {
@@ -147,7 +147,7 @@ describe("TemplateManager", () => {
 
     // Should fall back to built-in templates
     expect(templates).toEqual(BUILTIN_TEMPLATES);
-    expect(Object.keys(templates)).toHaveLength(4);
+    expect(Object.keys(templates)).toHaveLength(5);
   });
 
   it("should log template loading process", () => {

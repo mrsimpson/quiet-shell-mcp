@@ -34,5 +34,12 @@ export const BUILTIN_TEMPLATES: Record<string, Template> = {
     include_regex:
       "(\\[ERROR\\]|\\[INFO\\] Results:|\\[INFO\\] Tests run:(?!.*-- in)|\\[INFO\\] BUILD (SUCCESS|FAILURE)|\\[INFO\\] Total time:|\\[INFO\\] Finished at:)",
     tail_paragraphs: 0
+  },
+
+  "pulumi-up": {
+    description:
+      "Use when running 'pulumi up' - returns errors, warnings, failures, and the final summary. Also suppresses the output. Send full log to file if you need to see the output",
+    include_regex: "(error:|warning:|failed|panic:|diagnostics:)",
+    tail_paragraphs: 1
   }
 };

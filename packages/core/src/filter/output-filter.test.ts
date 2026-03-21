@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { filterOutput } from "./output-filter.js";
 import type { Template } from "../types.js";
+import { BUILTIN_TEMPLATES } from "../config/builtin-templates.js";
 
 describe("filterOutput", () => {
   it("should return empty string for empty input", () => {
@@ -177,5 +178,124 @@ Time: 1.5s`;
     expect(lines[0]).toBe("ERROR: Third");
     expect(lines[1]).toBe("ERROR: First");
     expect(lines[2]).toBe("ERROR: Second");
+  });
+
+  describe("pulumi-up template", () => {
+    const pulumiTemplate = BUILTIN_TEMPLATES["pulumi-up"]!;
+
+    it("should suppress successful resource progress lines", () => {
+      const output = [
+        "Updating (dev):",
+        "",
+        "     Type                      Name           Status",
+        "  +  pulumi:pulumi:Stack        my-stack       creating",
+        "  +  aws:s3:Bucket              my-bucket      created",
+        "  ~  aws:s3:BucketVersioningV2  my-bucket-v    updated",
+        "  -  aws:iam:Role               old-role       deleted",
+        "",
+        "Resources:",
+        "    + 2 created",
+        "    ~ 1 updated",
+        "    - 1 deleted",
+        "",
+        "Duration: 12s"
+      ].join("\n");
+
+      const result = filterOutput(output, pulumiTemplate);
+
+      // Should NOT include progress lines
+      expect(result).not.toContain("creating");
+      expect(result).not.toContain("created");
+      expect(result).not.toContain("updated");
+      expect(result).not.toContain("deleted");
+      expect(result).not.toContain("Updating (dev):");
+      expect(result).not.toContain("Resources:");
+
+      // Should include the final summary paragraph
+      expect(result).toContain("Duration: 12s");
+    });
+
+    it("should surface error lines", () => {
+      const output = [
+        "Updating (dev):",
+        "     Type             Name      Status",
+        "  +  aws:s3:Bucket    my-bucket creating",
+        "  +  aws:s3:Bucket    my-bucket **failed**",
+        "     error: 1 error occurred:",
+        "     * error: creating urn:...: AccessDenied: Access Denied",
+        "",
+        "Resources:",
+        "    1 error",
+        "",
+        "Duration: 3s"
+      ].join("\n");
+
+      const result = filterOutput(output, pulumiTemplate);
+
+      expect(result).toContain("error: 1 error occurred:");
+      expect(result).toContain(
+        "* error: creating urn:...: AccessDenied: Access Denied"
+      );
+      expect(result).toContain("Duration: 3s");
+
+      // Should NOT include the plain progress lines
+      expect(result).not.toContain("Updating (dev):");
+    });
+
+    it("should surface warning lines", () => {
+      const output = [
+        "Updating (dev):",
+        "  +  aws:lambda:Function  fn  creating",
+        "     warning: function timeout is very high (900s)",
+        "  +  aws:lambda:Function  fn  created",
+        "",
+        "Resources:",
+        "    + 1 created",
+        "",
+        "Duration: 8s"
+      ].join("\n");
+
+      const result = filterOutput(output, pulumiTemplate);
+
+      expect(result).toContain("warning: function timeout is very high (900s)");
+      expect(result).toContain("Duration: 8s");
+      expect(result).not.toContain("Updating (dev):");
+    });
+
+    it("should surface failed resource lines", () => {
+      const output = [
+        "Updating (dev):",
+        "  +  aws:rds:Instance  db  creating",
+        "  +  aws:rds:Instance  db  failed [error: timeout waiting for resource]",
+        "",
+        "Duration: 120s"
+      ].join("\n");
+
+      const result = filterOutput(output, pulumiTemplate);
+
+      expect(result).toContain("failed [error: timeout waiting for resource]");
+      expect(result).toContain("Duration: 120s");
+      expect(result).not.toContain("creating");
+    });
+
+    it("should show only summary when no errors or warnings", () => {
+      const output = [
+        "Updating (dev):",
+        "  +  aws:s3:Bucket  b  creating",
+        "  +  aws:s3:Bucket  b  created",
+        "",
+        "Resources:",
+        "    + 1 created",
+        "",
+        "Duration: 5s"
+      ].join("\n");
+
+      const result = filterOutput(output, pulumiTemplate);
+
+      // Only the final summary paragraph should remain
+      expect(result).toContain("Duration: 5s");
+      expect(result).not.toContain("creating");
+      expect(result).not.toContain("Updating (dev):");
+    });
   });
 });
