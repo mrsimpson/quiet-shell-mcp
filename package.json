@@ -1,34 +1,19 @@
 {
-  "name": "@codemcp/quiet-shell",
-  "version": "1.0.2",
-  "description": "MCP server for executing shell commands with intelligent output filtering",
+  "name": "quiet-shell-workspace",
+  "private": true,
+  "description": "Workspace root for quiet-shell MCP server monorepo",
   "authors": [
     "Oliver Jägle <github@beimir.net>"
   ],
   "license": "MIT",
-  "keywords": [
-    "mcp",
-    "model-context-protocol",
-    "shell",
-    "command",
-    "filter",
-    "output",
-    "ai",
-    "assistant"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/mrsimpson/quiet-shell-mcp"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "engines": {
     "node": ">=22",
     "pnpm": ">=9.0.0"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
     "build": "turbo run build",
