@@ -52,7 +52,7 @@
     "cytoscape-cose-bilkent": "4.1.0",
     "dayjs": "1.11.23",
     "debug": "4.4.3",
-    "eslint": "9.34.0",
+    "eslint": "9.39.5",
     "eslint-config-prettier": "10.1.8",
     "husky": "9.1.7",
     "lint-staged": "16.4.0",
